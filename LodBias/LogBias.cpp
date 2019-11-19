@@ -2,7 +2,11 @@
 
 #define GLFW_DLL 1
 #include <GLFW/glfw3.h>
+
+//#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include <learnopengl/shader.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,15 +14,29 @@
 #include <iostream>
 #include <array>
 #include <vector>
+#include <chrono>
+#include <ctime>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 // settings
-const unsigned int SCR_WIDTH = 1024;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 1024;
 
 bool showTexture = true;
+
+void saveScreenshot(GLFWwindow* window)
+{
+	glm::ivec2 viewportSize;
+	glfwGetWindowSize(window, &(viewportSize.x), &(viewportSize.y));
+	const auto CHANNELS_NUM = 3u;
+	std::vector<unsigned char> readData(viewportSize.x * viewportSize.y * CHANNELS_NUM);
+	glReadBuffer(GLenum(GL_COLOR_ATTACHMENT0));
+	glReadPixels(0, 0, viewportSize.x, viewportSize.y, GL_RGB, GL_UNSIGNED_BYTE, readData.data());
+	auto timestamp = std::chrono::seconds(std::time(NULL));
+	stbi_write_bmp(("screenshot" + std::to_string(timestamp.count()) + ".bmp").c_str(), viewportSize.x, viewportSize.y, 3, readData.data());
+}
 
 int main()
 {
@@ -143,6 +161,7 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 4);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 8.f);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
@@ -229,6 +248,9 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
 		showTexture = false;
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		saveScreenshot(window);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
