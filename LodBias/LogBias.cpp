@@ -28,7 +28,7 @@ void processInput(GLFWwindow* window);
 // settings
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 1024;
-const unsigned int LOD_BIAS = 1;
+const float LOD_BIAS = 4.f;
 
 bool showTexture = true;
 
@@ -167,7 +167,7 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, LOD_BIAS);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, LOD_BIAS);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 8.f);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
